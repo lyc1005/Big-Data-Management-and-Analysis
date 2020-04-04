@@ -41,6 +41,7 @@ if __name__=='__main__':
     .mapValues(lambda x: (x[0], x[1], round(x[2]*100/x[0]))) \
     .sortByKey() \
     .map(lambda x: x[0]+x[1]) \
+    .map(to_csv) \
     .saveAsTextFile(output_folder)
 
 
