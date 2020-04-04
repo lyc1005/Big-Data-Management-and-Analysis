@@ -20,7 +20,20 @@ if __name__=='__main__':
         reader = csv.reader(records)
         for r in reader:
             yield ((r[1].lower(), int(r[0][:4]), r[7].lower()), 1)
-
+    
+    def to_csv(rdd):
+        if ',' in rdd[0]:
+            name = "\"{}\"".format(rdd[0])
+        else:
+            name = rdd[0]
+        year = str(rdd[1])
+        totol_cpl = str(rdd[2])
+        total_cpn = str(rdd[3])
+        percentage = str(rdd[4])
+        li = [name, year, totol_cpl, total_cpn, percentage]
+        return ','.join(li)
+    
+    
     complaints.mapPartitionsWithIndex(mapper) \
     .reduceByKey(lambda x, y: x+y) \
     .map(lambda x: ((x[0][0], x[0][1]), (x[1], 1, x[1]))) \
