@@ -5,6 +5,26 @@ from pyspark import SparkContext
 import csv
 import sys
 
+def mapper(rowId, records):
+    if rowId == 0:
+        next(records)
+    reader = csv.reader(records)
+    for r in reader:
+        if len(r) == 18 and r[17]!= 'N/A':
+            yield ((r[1].lower(), int(r[0][:4]), r[7].lower()), 1)
+
+def to_csv(rdd):
+    if ',' in rdd[0]:
+        name = "\"{}\"".format(rdd[0])
+    else:
+        name = rdd[0]
+    year = str(rdd[1])
+    totol_cpl = str(rdd[2])
+    total_cpn = str(rdd[3])
+    percentage = str(rdd[4])
+    li = [name, year, totol_cpl, total_cpn, percentage]
+    return ','.join(li)
+
 if __name__=='__main__':
     
     input_file = sys.argv[1]
@@ -12,27 +32,7 @@ if __name__=='__main__':
  
     sc = SparkContext()
 
-    complaints = sc.textFile(input_file)
-
-    def mapper(rowId, records):
-        for rowId in range(3):
-            next(records)
-        reader = csv.reader(records)
-        for r in reader:
-            yield ((r[1].lower(), int(r[0][:4]), r[7].lower()), 1)
-    
-    def to_csv(rdd):
-        if ',' in rdd[0]:
-            name = "\"{}\"".format(rdd[0])
-        else:
-            name = rdd[0]
-        year = str(rdd[1])
-        totol_cpl = str(rdd[2])
-        total_cpn = str(rdd[3])
-        percentage = str(rdd[4])
-        li = [name, year, totol_cpl, total_cpn, percentage]
-        return ','.join(li)
-    
+    complaints = sc.textFile(input_file).cache()
     
     complaints.mapPartitionsWithIndex(mapper) \
     .reduceByKey(lambda x, y: x+y) \
