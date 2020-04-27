@@ -73,7 +73,7 @@ def processTrips(pid, records):
             except:
                 continue
             if (pickup_borough and dropoff_neighborhood):
-                yield ((boroughs_zones['boro_name'][pickup_borough], neighborhoods_zones['neighborhood'][dropoff_neighborhood]), 1)
+                yield ((boroughs_zones['boroname'][pickup_borough], neighborhoods_zones['neighborhood'][dropoff_neighborhood]), 1)
 
 def process(i):
     if ',' in str(i):
