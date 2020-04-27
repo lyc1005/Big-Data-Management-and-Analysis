@@ -63,10 +63,10 @@ def processTrips(pid, records):
     reader = csv.reader(records)
     i=0
     for row in reader:
-        if len(row) == 18:
+        if len(row) == 6:
             try:
-                pickup = geom.Point(proj(float(row[5]), float(row[6])))
-                dropoff = geom.Point(proj(float(row[9]), float(row[10])))
+                pickup = geom.Point(proj(float(row[3]), float(row[2])))
+                dropoff = geom.Point(proj(float(row[5]), float(row[4])))
                 # Look up a matching zone, and update the count accordly if
                 # such a match is found
                 pickup_borough = findZone(pickup, boroughs_index, boroughs_zones)
