@@ -62,7 +62,7 @@ def processTrips(pid, records):
     reader = csv.reader(records)
     i=0
     for row in reader:
-        if len(row) == 6:
+        if len(row) == 18:
             try:
                 pickup = geom.Point(proj(float(row[5]), float(row[6])))
                 dropoff = geom.Point(proj(float(row[9]), float(row[10])))
