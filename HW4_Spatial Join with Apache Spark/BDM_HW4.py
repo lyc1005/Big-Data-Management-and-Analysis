@@ -42,14 +42,6 @@ def findZone(p, index, zones):
     return None
 
 
-def findBoroughs(p, index, zones):
-    match = index.intersection((p.x, p.y, p.x, p.y))
-    for idx in match:
-        if zones.geometry[idx].contains(p):
-            return idx
-    return None
-
-
 def processTrips(pid, records):
     '''
         Our aggregation function that iterates through records in each
@@ -84,21 +76,27 @@ def processTrips(pid, records):
             if (pickup_borough and dropoff_neighborhood):
                 yield ((boroughs_zones['boro_name'][pickup_borough], neighborhoods_zones['neighborhood'][dropoff_neighborhood]), 1)
 
-def to_csv(rdd):
-    if ',' in rdd[0]:
-        name = "\"{}\"".format(rdd[0])
+def process(i):
+    if ',' in str(i):
+        return "\"{}\"".format(i)
     else:
-        name = rdd[0]
-    year = str(rdd[1])
-    totol_cpl = str(rdd[2])
-    total_cpn = str(rdd[3])
-    percentage = str(rdd[4])
-    li = [name, year, totol_cpl, total_cpn, percentage]
+        return str(i)
+
+def to_csv(rdd):
+    li = map(process, rdd)
     return ','.join(li)
 
 
 
 if __name__ == "__main__":
+    from pyspark import SparkContext
+    import csv
+    import geopandas as gpd
+    import fiona
+    import fiona.crs
+    import shapely
+    import sys
+    from heapq import nlargest
     
     sc = SparkContext()
     
