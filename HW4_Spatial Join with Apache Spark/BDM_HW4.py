@@ -9,6 +9,8 @@ import fiona.crs
 import shapely
 import sys
 from heapq import nlargest
+import pyproj
+import shapely.geometry as geom
 
 def createIndex(geojson):
     '''
@@ -48,9 +50,6 @@ def processTrips(pid, records):
         partition, checking whether we could find a zone that contain
         the pickup location.
         '''
-    import csv
-    import pyproj
-    import shapely.geometry as geom
     
     # Create an R-tree index
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)
@@ -97,6 +96,8 @@ if __name__ == "__main__":
     import shapely
     import sys
     from heapq import nlargest
+    import pyproj
+    import shapely.geometry as geom
     
     sc = SparkContext()
     
