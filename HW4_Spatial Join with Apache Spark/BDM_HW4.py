@@ -88,16 +88,6 @@ def to_csv(rdd):
 
 
 if __name__ == "__main__":
-    from pyspark import SparkContext
-    import csv
-    import geopandas as gpd
-    import fiona
-    import fiona.crs
-    import shapely
-    import sys
-    from heapq import nlargest
-    import pyproj
-    import shapely.geometry as geom
     
     sc = SparkContext()
     
