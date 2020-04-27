@@ -103,6 +103,6 @@ if __name__ == "__main__":
           .map(lambda x: (x[0], (x[1], x[2])))\
           .reduceByKey(lambda x, y: x+y)\
           .sortByKey()\
-          .map(lambda x: (x[0], *x[1]))\
+          .map(lambda x: ((x[0],)+x[1]))\
           .map(to_csv)\
           .saveAsTextFile(output)
