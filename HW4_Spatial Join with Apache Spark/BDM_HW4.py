@@ -72,7 +72,7 @@ def processTrips(pid, records):
                 dropoff_neighborhood = findZone(dropoff, neighborhoods_index, neighborhoods_zones)
             except:
                 continue
-            if (pickup_borough and dropoff_neighborhood):
+            if (pickup_borough != None) and (dropoff_neighborhood != None):
                 yield ((boroughs_zones['boroname'][pickup_borough], neighborhoods_zones['neighborhood'][dropoff_neighborhood]), 1)
 
 def process(i):
