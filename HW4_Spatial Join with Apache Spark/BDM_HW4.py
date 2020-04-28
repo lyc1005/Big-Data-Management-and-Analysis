@@ -60,7 +60,6 @@ def processTrips(pid, records):
     if pid==0:
         next(records)
     reader = csv.reader(records)
-    i=0
     for row in reader:
         if len(row) == 18:
             try:
