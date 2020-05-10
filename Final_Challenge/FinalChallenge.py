@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     rdd_cl = centerline.mapPartitionsWithIndex(processCenterline)
 
-    violations = sc.textFile('hdfs:///tmp/bdm/nyc_parking_violations/')
+    violations = sc.textFile('hdfs:///tmp/bdm/nyc_parking_violation/')
 
     rdd_v = violations.mapPartitionsWithIndex(processViolation)
 
