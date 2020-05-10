@@ -57,14 +57,14 @@ def processViolation(pid, records):
     reader = csv.reader(records)
     for row in reader:
         try:
-            year = int(row[5][-4:])
+            year = int(row[4][-4:])
             if year not in range(2015,2020):
                 raise ValueError
-            house_str = row[24]
+            house_str = row[23]
             house, flag = convert_house(house_str)
-            street = row[25].lower()
-            if row[22] in county2idx.keys():
-                boro = county2idx[row[22]]
+            street = row[24].lower()
+            if row[21] in county2idx.keys():
+                boro = county2idx[row[21]]
             else:
                 raise ValueError
             is_left = flag%2
