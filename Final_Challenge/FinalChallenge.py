@@ -13,20 +13,32 @@ import sys
 # 4 = Queens
 # 5 = Staten Island
 
+def convert_house(h):
+    if '-' in h:
+        t = h.split('-')
+        assert len(t) == 2
+        house = int(t[0]) + int(t[1])/10**8
+        flag = int(t[1])
+    else:
+        house = float(h)
+        flag = int(house)
+    return (house, flag)
+
 def processCenterline(pid, records):
     # Skip the header
     if pid==0:
         next(records)
     reader = csv.reader(records)
+    
     for row in reader:
         try:
             pysicalID = int(row[0])
             street = row[28].lower()
             boro = int(row[13])
-            l_low = int(row[2])
-            l_high = int(row[3])
-            r_low = int(row[4])
-            r_high = int(row[5])
+            l_low, _ = convert_house(row[2])
+            l_high, _ = convert_house(row[3])
+            r_low, _ = convert_house(row[4])
+            r_high, _ = convert_house(row[5])
         except:
             continue
         yield (pysicalID, street, boro, l_low, l_high, 1)
@@ -48,13 +60,14 @@ def processViolation(pid, records):
             year = int(row[5][-4:])
             if year not in range(2015,2020):
                 raise ValueError
-            house = int(row[24])
+            house_str = row[24]
+            house, flag = convert_house(house_str)
             street = row[25].lower()
             if row[22] in county2idx.keys():
                 boro = county2idx[row[22]]
             else:
                 raise ValueError
-            is_left = house%2
+            is_left = flag%2
         except:
             continue
         yield (year, house, street, boro, is_left)
