@@ -7,11 +7,6 @@ import csv
 import numpy as np
 import sys
 
-county2idx = {'MAN':1,'MH':1,'MN':1,'NEWY':1,'NEW Y':1,'NY':1,\
-              'BRONX':2,'BX':2,'PBX':2,\
-              'BK':3,'K':3,'KING':3,'KINGS':3,\
-              'Q':4,'QN':4,'QNS':4,'QU':4,'QUEEN':4,\
-              'R':5,'RICHMOND':5}
 # 1 = Manhattan
 # 2 = Bronx
 # 3 = Brooklyn
@@ -25,11 +20,11 @@ def processCenterline(pid, records):
     reader = csv.reader(records)
     for row in reader:
         try:
-            pysicalID = int(row[3])
+            pysicalID = int(row[0])
             street = row[28].lower()
             boro = int(row[13])
-            l_low = int(row[0])
-            l_high = int(row[1])
+            l_low = int(row[2])
+            l_high = int(row[3])
             r_low = int(row[4])
             r_high = int(row[5])
         except:
@@ -39,6 +34,11 @@ def processCenterline(pid, records):
 
 
 def processViolation(pid, records):
+    county2idx = {'MAN':1,'MH':1,'MN':1,'NEWY':1,'NEW Y':1,'NY':1,\
+                  'BRONX':2,'BX':2,'PBX':2,\
+                  'BK':3,'K':3,'KING':3,'KINGS':3,\
+                  'Q':4,'QN':4,'QNS':4,'QU':4,'QUEEN':4,\
+                  'R':5,'RICHMOND':5}
     # Skip the header
     if pid==0:
         next(records)
