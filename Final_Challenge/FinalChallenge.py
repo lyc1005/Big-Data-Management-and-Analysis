@@ -122,6 +122,7 @@ if __name__ == "__main__":
                .mapPartitions(processformat)\
                .reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1]))\
                .mapValues(lambda y: y+(compute_ols(y=list(y)),))\
+               .sortByKey()\
                .map(lambda x: ((x[0],)+x[1]))\
                .map(to_csv)\
                .saveAsTextFile(output)
