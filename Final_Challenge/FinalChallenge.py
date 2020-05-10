@@ -46,6 +46,8 @@ def processViolation(pid, records):
     for row in reader:
         try:
             year = int(row[5][-4:])
+            if year not in range(2015,2020):
+                raise ValueError
             house = int(row[24])
             street = row[25].lower()
             if row[22] in county2idx.keys():
@@ -60,13 +62,19 @@ def processViolation(pid, records):
 
 def processformat(records):
     for r in records:
-        if r[0][1]==2019:
-            yield (r[0][0], (r[1], 0))
-        else:
-            yield (r[0][0], (0, r[1]))
+        if r[0][1]==2015:
+            yield (r[0][0], (r[1], 0, 0, 0, 0))
+        elif r[0][1]==2016:
+            yield (r[0][0], (0, r[1], 0, 0, 0))
+        elif r[0][1]==2017:
+            yield (r[0][0], (0, 0, r[1], 0, 0))
+        elif r[0][1]==2018:
+            yield (r[0][0], (0, 0, 0, r[1], 0))
+        elif r[0][1]==2019:
+            yield (r[0][0], (0, 0, 0, 0, r[1]))
 
 
-def compute_ols(y, x=list(range(2018,2020))):
+def compute_ols(y, x=list(range(2015,2020))):
     x, y = np.array(x), np.array(y)
     # number of observations/points 
     n = np.size(x)
@@ -99,11 +107,11 @@ if __name__ == "__main__":
     sc = SparkContext()
     spark = SparkSession(sc)
 
-    centerline = sc.textFile('nyc_cscl.csv')
+    centerline = sc.textFile('hdfs:///tmp/bdm/nyc_cscl.csv')
 
     rdd_cl = centerline.mapPartitionsWithIndex(processCenterline)
 
-    violations = sc.textFile('Parking Violations Issued - Fiscal Year 2019.csv')
+    violations = sc.textFile('hdfs:///tmp/bdm/nyc_parking_violations/')
 
     rdd_v = violations.mapPartitionsWithIndex(processViolation)
 
@@ -116,14 +124,14 @@ if __name__ == "__main__":
             v.is_left == cl.is_left,
             (v.house >= cl.low) & (v.house <= cl.high)]
 
-    df_2019 = v.join(cl, cond, 'inner').groupBy([cl.pysicalID, v.year]).count()
+    df = v.join(cl, cond, 'inner').groupBy([cl.pysicalID, v.year]).count()
 
-    df_2019.rdd.map(lambda x: ((x[0], x[1]), x[2]))\
-               .mapPartitions(processformat)\
-               .reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1]))\
-               .mapValues(lambda y: y+(compute_ols(y=list(y)),))\
-               .sortByKey()\
-               .map(lambda x: ((x[0],)+x[1]))\
-               .map(to_csv)\
-               .saveAsTextFile(output)
+    df.rdd.map(lambda x: ((x[0], x[1]), x[2]))\
+           .mapPartitions(processformat)\
+           .reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1], x[2]+y[2], x[3]+y[3], x[4]+y[4]))\
+           .sortByKey()
+           .mapValues(lambda y: y+(compute_ols(y=list(y)),))\
+           .map(lambda x: ((x[0],)+x[1]))\
+           .map(to_csv)\
+           .saveAsTextFile(output)
 
