@@ -6,6 +6,7 @@ from pyspark.sql.session import SparkSession
 import csv
 import numpy as np
 import sys
+import time
 
 # 1 = Manhattan
 # 2 = Bronx
@@ -40,7 +41,7 @@ def processCenterline(pid, records):
             r_low, _ = convert_house(row[4])
             r_high, _ = convert_house(row[5])
         except:
-            continue
+            (pysicalID, street, boro, l_low, l_high, r_low, r_high) = (int(row[0]), '', -1, -1.0, -1.0, -1.0, -1.0)
         yield (pysicalID, street, boro, l_low, l_high, 1)
         yield (pysicalID, street, boro, r_low, r_high, 0)
 
@@ -85,6 +86,8 @@ def processformat(records):
             yield (r[0][0], (0, 0, 0, r[1], 0))
         elif r[0][1]==2019:
             yield (r[0][0], (0, 0, 0, 0, r[1]))
+        else:
+            yield (r[0][0], (0, 0, 0, 0, 0))
 
 
 def compute_ols(y, x=list(range(2015,2020))):
@@ -114,7 +117,7 @@ def to_csv(rdd):
 
 
 if __name__ == "__main__":
-
+    start_time = time.time()
     output = sys.argv[1]
 
     sc = SparkContext()
@@ -137,7 +140,7 @@ if __name__ == "__main__":
             v.is_left == cl.is_left,
             (v.house >= cl.low) & (v.house <= cl.high)]
 
-    df = v.join(cl, cond, 'inner').groupBy([cl.pysicalID, v.year]).count()
+    df = cl.join(v, cond, 'left').groupBy([cl.pysicalID, v.year]).count()
 
     df.rdd.map(lambda x: ((x[0], x[1]), x[2]))\
            .mapPartitions(processformat)\
@@ -148,3 +151,4 @@ if __name__ == "__main__":
            .map(to_csv)\
            .saveAsTextFile(output)
 
+    print('total running time : {} seconds'.format(time.time-start_time))
