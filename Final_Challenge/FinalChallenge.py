@@ -151,4 +151,4 @@ if __name__ == "__main__":
            .map(to_csv)\
            .saveAsTextFile(output)
 
-    print('total running time : {} seconds'.format(time.time-start_time))
+    print('total running time : {} seconds'.format(time.time()-start_time))
