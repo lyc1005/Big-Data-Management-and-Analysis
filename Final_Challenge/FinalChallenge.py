@@ -69,7 +69,7 @@ def processformat(records):
 def compute_ols(y, x=list(range(2018,2020))):
     x, y = np.array(x), np.array(y)
     # number of observations/points 
-    n = np.size(x
+    n = np.size(x)
     # mean of x and y vector 
     m_x, m_y = np.mean(x), np.mean(y)
     # calculating cross-deviation and deviation about x 
