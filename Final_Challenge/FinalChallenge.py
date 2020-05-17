@@ -43,8 +43,14 @@ def processCenterline(pid, records):
             r_high, _ = convert_house(row[5])
         except:
             (pysicalID, street_label, full_street, boro, l_low, l_high, r_low, r_high) = (int(row[0]), '', '', -1, -1.0, -1.0, -1.0, -1.0)
-        yield (pysicalID, street_label, full_street, boro, l_low, l_high, 1)
-        yield (pysicalID, street_label, full_street, boro, r_low, r_high, 0)
+        if street_label == full_street:
+            yield (pysicalID, street_label, boro, l_low, l_high, 1)
+            yield (pysicalID, street_label, boro, r_low, r_high, 0)
+        else:
+            yield (pysicalID, street_label, boro, l_low, l_high, 1)
+            yield (pysicalID, street_label, boro, r_low, r_high, 0)
+            yield (pysicalID, full_street, boro, l_low, l_high, 1)
+            yield (pysicalID, full_street, boro, r_low, r_high, 0)
 
 
 def processViolation(pid, records):
@@ -134,10 +140,10 @@ if __name__ == "__main__":
 
     v = spark.createDataFrame(rdd_v, ('year','house','street','boro','is_left'))
 
-    cl = spark.createDataFrame(rdd_cl, ('pysicalID','st_label','full_st','boro','low','high','is_left'))
+    cl = spark.createDataFrame(rdd_cl, ('pysicalID','street','boro','low','high','is_left'))
 
     cond = [v.boro == cl.boro,
-            (v.street == cl.st_label) | (v.street == cl.full_st),
+            v.street == cl.street,
             v.is_left == cl.is_left,
             (v.house >= cl.low) & (v.house <= cl.high)]
 
